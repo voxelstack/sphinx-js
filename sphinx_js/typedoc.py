@@ -2,6 +2,7 @@
 
 import os
 import pathlib
+import posixpath
 import re
 import subprocess
 from collections.abc import Iterable, Iterator, Sequence
@@ -73,7 +74,7 @@ def typedoc_output(
     command.add("tsx@4.15.8")
     dir = Path(__file__).parent.resolve() / "js"
     command.add("--tsconfig", str(dir / "tsconfig.json"))
-    command.add("--import", str(dir / "registerImportHook.mjs"))
+    command.add("--import", "file:///" + str(dir / "registerImportHook.mjs"))
     command.add(str(dir / "main.ts"))
     if ts_sphinx_js_config:
         command.add("--sphinxJsConfig", ts_sphinx_js_config)
@@ -93,7 +94,11 @@ def typedoc_output(
     command.add("--excludePrivate", "false")
 
     with NamedTemporaryFile(mode="w+b", delete=False) as temp:
-        command.add("--json", temp.name, *abs_source_paths)
+        source_paths = abs_source_paths
+        if os.name == "nt":
+            source_paths = map(lambda path: str(posixpath.join(*str(path).split(os.sep))), abs_source_paths)
+    
+        command.add("--json", temp.name, *source_paths)
         try:
             subprocess.run(command.make(), check=True, env=env)
         except OSError as exc:
