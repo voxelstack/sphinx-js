@@ -96,8 +96,11 @@ def typedoc_output(
     with NamedTemporaryFile(mode="w+b", delete=False) as temp:
         source_paths = abs_source_paths
         if os.name == "nt":
-            source_paths = map(lambda path: str(posixpath.join(*str(path).split(os.sep))), abs_source_paths)
-    
+            source_paths = map(
+                lambda path: str(posixpath.join(*str(path).split(os.sep))),
+                abs_source_paths,
+            )
+
         command.add("--json", temp.name, *source_paths)
         try:
             subprocess.run(command.make(), check=True, env=env)
