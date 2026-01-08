@@ -29,8 +29,7 @@ MIN_TYPEDOC_VERSION = (0, 25, 0)
 @cache
 def typedoc_version_info(typedoc: str) -> tuple[tuple[int, ...], tuple[int, ...]]:
     command = Command("node")
-    command.add(typedoc)
-    command.add("--version")
+    command.add(typedoc, "--version")
     result = subprocess.run(
         command.make(),
         capture_output=True,
